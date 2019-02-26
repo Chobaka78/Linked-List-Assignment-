@@ -1,0 +1,226 @@
+/*
+*LList.java
+* Usman Farooqi
+* This is the class for a single linked list (not doubly linked)
+* This has two new methods
+* Push will add to the top of the stack
+* Pop will remove from the top of the stack
+ */
+
+public class LList { // object list
+    private LNode head;
+    public LList(){ // constructor
+        head=null;
+    }
+    public void add(int n){ // given add method to add elements
+        LNode tmp=new LNode(n,head);
+        head=tmp;
+    }
+    @Override
+    public String toString(){ // prints out visual representation of the list
+        String ans="";
+        LNode tmp=head;
+        while(tmp!=null){
+            ans+=tmp+"-";//will call toString
+            tmp=tmp.getNext();
+        }
+        if(ans.length() != 0){
+            ans=ans.substring(0,ans.length()-1);
+        }
+        return ans;
+    }
+
+    public void push(int n){ // push method adds to top of stack
+        LNode tmp = new LNode(n,head);
+        head = tmp;
+    }
+
+    public LNode pop(){ // pop method removes from top
+        if(head == null){ // if the list is empty
+            return null;  // return nothing
+        }
+        else{ // else
+            LNode tmp = head;
+            head = tmp.getNext(); // make head point to next element (nothing will point to current so it will disappear)
+            return tmp;
+        }
+
+    }
+}
+
+/*
+*LList.java
+*Usman Farooqi
+*This is the LList class for the doubly linked list it has the following methods
+*enqueue - This adds an element at the tail of the list
+* dequeue - This removes an element from the front of the list
+* delete - This takes an integer or an Lnode reference and removes it from the list without destroying integrity of it
+* deleteAt - This will delete an element at a given point
+* sortedInsert - This will insert the given element in order ascending from tail to head (assuming list is already sorted)
+* removeDuplicates - This will remove any duplicates within the list
+* reverse - This method will take the list and reverse it (head to tail ) --> (tail to head)
+* clone - This will take all the elements with in the list and make a new clone list from them
+ */
+
+
+public class LList { // LList object
+    private LNode head; // head of list
+    private LNode tail; // tail of list
+    public LList(){ // constructor method for setting their values
+        head = null;
+        tail = null;
+    }
+    public void add(int n){ // modified add version from single linked list
+        LNode tmp = new LNode(null,n,head);
+        head.setPrev(tmp);
+        head = tmp;
+    }
+    public void enqueue(int n){ // adds element to the back of list (tail)
+        if(head == null){ // if the list is empty
+            LNode tmp = new LNode(null,n,null); // make tmp LNode
+            head = tmp;
+            tail = tmp;
+        }
+        else{ // if there are elements in the list
+            LNode tmp = new LNode (tail,n,null);
+            tail.setNext(tmp);
+            tail = tmp;
+        }
+    }
+
+    public LNode dequeue(){ // removes an element from the front of list
+        if(head == null){ // if the list is empty
+            return null; // do nothing
+        }
+
+        else{ // if there are elements
+            LNode tmp = head; // make tmp be head
+            head = tmp.getNext(); // head becomes next element (nothing pointing at tmp (current) so it's gone
+            return tmp;
+        }
+    }
+    public void delete(LNode node){ // takes an LNode reference and deletes it from list
+        if(node == head && node == tail){ // if the list is empty
+            head = null; // do nothing
+            tail = null;
+        }
+        else if(node == head){ // if trying to remove from front (head)
+            head = node.getNext();
+            head.setPrev(null);
+        }
+        else if(node  == tail){ // if trying to remove from the back (tail)
+            tail = node.getPrev();
+            tail.setNext(null);
+        }
+        else{ // if trying to remove in between two elements
+            node.getPrev().setNext(node.getNext());
+            node.getNext().setPrev(node.getPrev());
+        }
+    }
+
+    public void delete(int n){ // takes in an integer value to delete
+        LNode tmp = head; // make tmp lnode and set it as head (points at head)
+        while (tmp != null){ // while loop goes through each node in the least
+            if(tmp.getVal() == n){ // if the value of the current node is the same as value passed through
+                delete(tmp); // call delete method
+                return; // end method
+            }
+        }
+    }
+
+    public void deleteAt(int n){ // takes a position and deletes element at that position
+        LNode tmp = head;
+        int i = 0;
+        while(i < n){ // goes through each node as position as long as i is less than given position
+            tmp = tmp.getNext(); // goes through all elements
+            i += 1; // increase i by 1
+        }
+        delete(tmp);
+    }
+
+    public void sortedInsert(int n){ // inserts number into a sorted list in the right order
+        LNode tmp = head;
+        if(head == null){ // if list is empty
+            enqueue(n);
+        }
+        else{ // list has elements
+            while (tmp != null){ // goes through each node
+                if(tmp.getNext() != null){ // goes through the next node
+                    if(tmp.getVal() >= n && tmp.getNext().getVal() <= n){ // checks if number will fit in between two numbers
+                        LNode tmp2 = new LNode(tmp, n, tmp.getNext());
+                        tmp.setNext(tmp2);
+                        tmp2.getNext().setPrev(tmp2);
+                        return; // ends method
+                    }
+                }
+                else if(n >= tmp.getVal()){ // if the number is greater than all the current numbers in the list
+                    add(n); // use add method to add it
+                }
+                else { // number doesnt fit in between meaning it can fit at the end
+                    LNode tmp2 = new LNode(tail,n,null);
+                    tmp2.getPrev().setNext(tmp2);
+                }
+                tmp = tmp.getNext();
+            }
+        }
+    }
+
+    public boolean contains (int n){ // this method will be used in the duplicate method to check if a value is already in the list
+        LNode tmp = head;
+        while (tmp != null){
+            if(tmp.getVal() == n){ // if the value is the same as value passed through
+                return true; // return true
+            }
+            tmp = tmp.getNext();
+        }
+        return false; // else return false
+    }
+
+    public void removeDuplicates(){ // this method will remove any duplicates in the list
+        LNode tmp = head;
+        LList newlist = new LList(); // create new list
+        while (tmp != null) {
+            if(!newlist.contains(tmp.getVal())){ // check if the element being added is already in old list
+                newlist.enqueue(tmp.getVal()); // if not then add it
+            }
+            tmp = tmp.getNext();
+        }
+        head = newlist.head; // replace the old list with new one
+        tail = newlist.tail;
+    }
+
+    public void reverse(){ // this method will reverse the list
+        LNode tmp = tail;
+        LList newlist = new LList(); // make a new list
+        while (tmp != null){ // checks every node
+            newlist.enqueue(tmp.getVal()); // adds to the new list the element from (old list starting from tail)
+            tmp = tmp.getPrev(); // sets current tmp to the prevous element
+        }
+        head = newlist.head; // replaces current list with the new one
+        tail = newlist.tail;
+    }
+
+    public LList Clone(){ // ths method will clone all elements in the list
+        LNode tmp = head;
+        LList newlist = new LList(); // makes a new list
+        while(tmp != null){ // checks each node
+            newlist.enqueue(tmp.getVal()); // adds to the new list each element value fron old list
+            tmp = tmp.getNext(); // sets current tmp to the nect element
+        }
+        return newlist; // returns the new list
+    }
+    @Override
+    public String toString(){ // this will print out visual representation of list
+        String ans="";
+        LNode tmp=head;
+        while(tmp!=null){
+            ans+=tmp+"-";//will call toString
+            tmp=tmp.getNext();
+        }
+        if(ans.length() != 0){
+            ans=ans.substring(0,ans.length()-1);
+        }
+        return ans;
+    }
+}
+
